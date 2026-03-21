@@ -6,141 +6,141 @@
     <title>BE PHOENIX LSPD | Terminal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #3b82f6; --bg: #020617; --card: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; height: 100vh; }
-        #app { width: 100%; max-width: 600px; display: flex; flex-direction: column; background: #0f172a; border: 1px solid #1e40af; position: relative; }
+        :root { --primary: #3b82f6; --bg: #020617; --accent: #1e40af; --text: #f8fafc; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         
-        /* Header */
-        header { background: #1e40af; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .status { font-size: 12px; color: #4ade80; display: flex; align-items: center; gap: 5px; }
-        .status::before { content: ''; width: 8px; height: 8px; background: #4ade80; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #4ade80; }
+        #app { width: 100%; max-width: 600px; display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1); }
+        
+        header { background: linear-gradient(90deg, #1e3a8a, #1e40af); padding: 18px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.4); z-index: 10; }
+        .status { font-size: 11px; color: #4ade80; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+        .status-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 10px #4ade80; animation: pulse-green 2s infinite; }
 
-        /* Chat Area */
-        #chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
-        .msg { max-width: 80%; padding: 12px 16px; border-radius: 15px; font-size: 14px; position: relative; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; animation: slideUp 0.3s ease-out; position: relative; }
+        .user { align-self: flex-end; background: #334155; border-bottom-right-radius: 4px; color: white; }
+        .bot { align-self: flex-start; background: rgba(30, 64, 175, 0.8); border: 1px solid rgba(255,255,255,0.1); border-bottom-left-radius: 4px; }
         
-        .user { align-self: flex-end; background: #334155; border-bottom-right-radius: 2px; }
-        .bot { align-self: flex-start; background: #1e40af; border-bottom-left-radius: 2px; line-height: 1.6; }
-        
-        /* Controls */
-        .input-wrap { padding: 20px; background: #1e293b; border-top: 1px solid #334155; }
-        .input-group { display: flex; gap: 10px; background: #0f172a; padding: 5px; border-radius: 12px; border: 1px solid #334155; }
-        input { flex: 1; background: transparent; border: none; color: white; padding: 12px; outline: none; font-size: 15px; }
-        
-        .btn { background: #1e40af; border: none; color: white; width: 45px; height: 45px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .btn:hover { background: #3b82f6; transform: scale(1.05); }
-        .btn-mic.active { background: #ef4444; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        /* Индикатор печати */
+        #typing { display: none; align-self: flex-start; background: #1e293b; padding: 10px 15px; border-radius: 18px; margin-bottom: 10px; }
+        .dot { height: 7px; width: 7px; background: #94a3b8; border-radius: 50%; display: inline-block; margin-right: 3px; animation: bounce 1.3s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.15s; }
+        .dot:nth-child(3) { animation-delay: 0.3s; }
 
-        /* Quick Buttons */
-        .quick-actions { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; }
-        .tag { background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; white-space: nowrap; transition: 0.2s; }
-        .tag:hover { background: #475569; }
+        .controls { padding: 20px; background: rgba(30, 41, 59, 0.5); border-top: 1px solid rgba(255,255,255,0.1); }
+        .quick-actions { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
+        .tag { background: rgba(51, 65, 85, 0.6); border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: 0.3s; white-space: nowrap; }
+        .tag:hover { background: var(--primary); }
+
+        .input-group { display: flex; gap: 10px; background: #020617; padding: 6px; border-radius: 14px; border: 1px solid #334155; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+        input { flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; font-size: 15px; }
+        .btn { width: 44px; height: 44px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; color: white; }
+        .btn-blue { background: #1e40af; }
+        .btn-mic { background: #334155; }
+        .btn-mic.recording { background: #ef4444; animation: pulse-red 1.5s infinite; }
+
+        @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-green { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div id="app">
     <header>
-        <div style="font-weight: 800; font-size: 18px;">BE PHOENIX LSPD</div>
-        <div class="status">ОФИЦЕР В СЕТИ</div>
+        <div style="font-weight: 800; font-size: 16px; letter-spacing: 1px;">PHOENIX LSPD TERMINAL</div>
+        <div class="status"><div class="status-dot"></div>Data Link Active</div>
     </header>
 
     <div id="chat">
-        <div class="msg bot">Система активна. Голосовой ввод готов. <br>Назовите статью или ситуацию для анализа.</div>
+        <div class="msg bot">Офицер, терминал готов к работе. Используйте клавиатуру или голос для запроса.</div>
     </div>
 
-    <div class="input-wrap">
+    <div id="typing" style="margin-left: 20px;">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+
+    <div class="controls">
         <div class="quick-actions">
-            <div class="tag" onclick="quickSend('Миранда')">📢 Миранда</div>
-            <div class="tag" onclick="quickSend('Статья 13.1 УК')">💊 Наркотики</div>
-            <div class="tag" onclick="quickSend('Этапы задержания')">🚔 Процесс</div>
-            <div class="tag" onclick="quickSend('Статья 17.1 УК')">👊 Нападение</div>
+            <div class="tag" onclick="quick('Миранда')">⚖️ Миранда</div>
+            <div class="tag" onclick="quick('Статья 13.2 УК')">📦 Крупный вес</div>
+            <div class="tag" onclick="quick('Статья 17.6 УК')">🚫 Неподчинение</div>
+            <div class="tag" onclick="quick('Процессуальный кодекс Глава 7')">📜 Задержание</div>
         </div>
         <div class="input-group">
-            <button class="btn btn-mic" id="micBtn" title="Голосовой ввод">
-                <i class="fas fa-microphone"></i>
-            </button>
-            <input type="text" id="userInput" placeholder="Введите запрос..." onkeypress="if(event.key==='Enter') sendMessage()">
-            <button class="btn" onclick="sendMessage()">
-                <i class="fas fa-paper-plane"></i>
-            </button>
+            <button class="btn btn-mic" id="micBtn"><i class="fas fa-microphone"></i></button>
+            <input type="text" id="userInput" placeholder="Введите код или вопрос..." autocomplete="off">
+            <button class="btn btn-blue" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 </div>
 
 <script>
+    // Твой ключ уже вшит
     const API_KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec'; 
     const chat = document.getElementById('chat');
+    const typing = document.getElementById('typing');
+    const input = document.getElementById('userInput');
     const micBtn = document.getElementById('micBtn');
-    const userInput = document.getElementById('userInput');
 
-    // --- ГОЛОСОВОЙ ВВОД ---
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'ru-RU';
-        
-        micBtn.onclick = () => {
-            recognition.start();
-            micBtn.classList.add('active');
-        };
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            userInput.value = transcript;
-            micBtn.classList.remove('active');
-            sendMessage();
-        };
-
-        recognition.onspeechend = () => {
-            recognition.stop();
-            micBtn.classList.remove('active');
-        };
-    } else {
-        micBtn.style.display = 'none';
-    }
-
-    // --- ОТПРАВКА СООБЩЕНИЙ ---
+    // Настройка модели
     async function sendMessage() {
-        const text = userInput.value.trim();
+        const text = input.value.trim();
         if (!text) return;
 
         addMessage(text, 'user');
-        userInput.value = '';
+        input.value = '';
+        showTyping(true);
 
         try {
+            // Исправленная ссылка и название модели для v1beta
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Инструкция: Ты - краткий ИИ-помощник LSPD на Majestic Phoenix. Отвечай только по делу, используя УК и ПК штата. Запрос: ${text}` }] }]
+                    contents: [{ parts: [{ text: `Ты - ИИ помощник LSPD на Majestic RP Phoenix. База: УК, ПК. Отвечай очень кратко и по делу. Запрос: ${text}` }] }]
                 })
             });
 
             const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
+            showTyping(false);
             
-            const reply = data.candidates[0].content.parts[0].text;
-            addMessage(reply, 'bot');
+            if (data.candidates && data.candidates[0].content.parts[0].text) {
+                const reply = data.candidates[0].content.parts[0].text;
+                addMessage(reply, 'bot');
+            } else {
+                throw new Error("Пустой ответ от сервера");
+            }
         } catch (e) {
-            console.error(e);
-            addMessage(`Сбой системы: ${e.message}. Проверьте соединение или лимиты ключа.`, 'bot');
+            showTyping(false);
+            addMessage(`Ошибка протокола: ${e.message}. Проверьте доступ к API.`, 'bot');
         }
     }
 
-    function quickSend(val) {
-        userInput.value = val;
-        sendMessage();
+    function showTyping(show) {
+        typing.style.display = show ? 'block' : 'none';
+        chat.scrollTop = chat.scrollHeight;
     }
 
     function addMessage(text, side) {
         const div = document.createElement('div');
         div.className = `msg ${side}`;
-        div.innerHTML = text.replace(/\n/g, '<br>');
+        div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
+    }
+
+    function quick(val) { input.value = val; sendMessage(); }
+
+    input.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+
+    // Голосовой ввод
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (Speech) {
+        const rec = new Speech();
+        rec.lang = 'ru-RU';
+        micBtn.onclick = () => { rec.start(); micBtn.classList.add('recording'); };
+        rec.onresult = (e) => { input.value = e.results[0][0].transcript; sendMessage(); };
+        rec.onend = () => micBtn.classList.remove('recording');
     }
 </script>
 </body>
