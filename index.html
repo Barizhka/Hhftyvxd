@@ -2,198 +2,122 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BE PHOENIX LSPD | Digital Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PHOENIX LSPD</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --bg-color: #0b0e14;
-            --panel-color: #161b22;
-            --accent-blue: #4e8cff;
-            --user-msg: #2d333b;
-            --bot-msg: #1e2530;
-            --text-main: #e6edf3;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #app {
-            width: 100%;
-            max-width: 650px;
-            display: flex;
-            flex-direction: column;
-            background: var(--panel-color);
-            box-shadow: 0 0 40px rgba(0,0,0,0.6);
-            border-left: 1px solid #30363d;
-            border-right: 1px solid #30363d;
-        }
-
-        header {
-            padding: 20px;
-            background: rgba(22, 27, 34, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #30363d;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-title { font-weight: 700; font-size: 1.1rem; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
-        .online-dot { width: 10px; height: 10px; background: #238636; border-radius: 50%; box-shadow: 0 0 8px #238636; }
-
-        #chat {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            scroll-behavior: smooth;
-        }
-
-        .msg {
-            max-width: 80%;
-            padding: 14px 18px;
-            border-radius: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .user { align-self: flex-end; background: var(--user-msg); border-bottom-right-radius: 4px; border: 1px solid #444c56; }
-        .bot { align-self: flex-start; background: var(--bot-msg); border: 1px solid #30363d; border-bottom-left-radius: 4px; }
-
-        /* typing indicator */
-        #typing {
-            display: none;
-            align-self: flex-start;
-            margin-left: 10px;
-            padding: 10px;
-            font-size: 13px;
-            color: #8b949e;
-        }
-        .dot { display: inline-block; width: 4px; height: 4px; background: #8b949e; border-radius: 50%; margin-right: 3px; animation: wave 1.3s infinite; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes wave { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
-
-        .footer {
-            padding: 20px;
-            background: #0d1117;
-            border-top: 1px solid #30363d;
-        }
-
-        .quick-tags { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; scrollbar-width: none; }
-        .tag { background: #21262d; border: 1px solid #30363d; padding: 6px 14px; border-radius: 12px; font-size: 12px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-        .tag:hover { border-color: var(--accent-blue); background: #30363d; }
-
-        .input-box {
-            display: flex;
-            align-items: center;
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 16px;
-            padding: 8px 15px;
-            transition: border-color 0.2s;
-        }
-        .input-box:focus-within { border-color: var(--accent-blue); }
-
-        input { flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; font-size: 14px; }
+        :root { --bg: #0d1117; --panel: #161b22; --blue: #58a6ff; --text: #c9d1d9; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        .action-btn { background: none; border: none; color: #8b949e; cursor: pointer; font-size: 18px; padding: 8px; transition: 0.2s; }
-        .action-btn:hover { color: var(--accent-blue); }
-        .mic-on { color: #f85149 !important; }
+        header { padding: 15px; background: var(--panel); border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
+        .title { color: var(--blue); font-weight: bold; letter-spacing: 1px; font-size: 14px; }
+
+        #chat { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .msg { max-width: 85%; padding: 12px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+        .user { align-self: flex-end; background: #238636; color: white; }
+        .bot { align-self: flex-start; background: #21262d; border: 1px solid #30363d; }
+
+        /* Окно логов для телефона */
+        #debugLog { font-size: 10px; color: #f85149; padding: 5px 15px; background: #000; display: none; border-top: 1px solid #f85149; max-height: 50px; overflow: auto; }
+
+        #typing { display: none; padding: 10px 15px; font-size: 12px; color: #8b949e; }
+        .dots::after { content: ''; animation: d 1.5s infinite; }
+        @keyframes d { 0% {content: '.';} 33% {content: '..';} 66% {content: '...';} }
+
+        .footer { padding: 10px; background: var(--panel); border-top: 1px solid #30363d; }
+        .input-group { display: flex; gap: 8px; align-items: center; background: #0d1117; border-radius: 20px; padding: 5px 15px; border: 1px solid #30363d; }
+        input { flex: 1; background: transparent; border: none; color: white; padding: 8px; outline: none; font-size: 16px; } /* 16px предотвращает зум на iPhone */
+        
+        .btn { background: none; border: none; color: var(--blue); font-size: 18px; cursor: pointer; padding: 5px; }
+        .mic-active { color: #f85149; }
+        
+        .tags { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 5px; scrollbar-width: none; }
+        .tag { background: #21262d; padding: 5px 12px; border-radius: 15px; font-size: 11px; white-space: nowrap; border: 1px solid #30363d; }
     </style>
 </head>
 <body>
 
-<div id="app">
-    <header>
-        <div class="header-title"><i class="fas fa-shield-halved"></i> BE PHOENIX LSPD</div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 11px; color: #8b949e;">DATABASE SYNC</span>
-            <div class="online-dot"></div>
-        </div>
-    </header>
+<header>
+    <div class="title"><i class="fas fa-shield-alt"></i> PHOENIX LSPD v3.5</div>
+    <div style="font-size: 10px; color: #3fb950;">● ONLINE</div>
+</header>
 
-    <div id="chat">
-        <div class="msg bot">Офицер, система готова. Чем могу помочь?</div>
+<div id="chat">
+    <div class="msg bot">Офицер, я на связи. Напишите или продиктуйте запрос.</div>
+</div>
+
+<div id="typing">Синхронизация с ИИ<span class="dots"></span></div>
+<div id="debugLog"></div>
+
+<div class="footer">
+    <div class="tags">
+        <div class="tag" onclick="quick('Миранда')">⚖️ Миранда</div>
+        <div class="tag" onclick="quick('Статья 13.2 УК')">💊 Наркотики</div>
+        <div class="tag" onclick="quick('17.6 УК')">🛑 Неподчинение</div>
+        <div class="tag" onclick="quick('Обыск')">🔍 Обыск</div>
     </div>
-
-    <div id="typing">
-        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-        <span>ИИ обрабатывает запрос...</span>
-    </div>
-
-    <div class="footer">
-        <div class="quick-tags">
-            <div class="tag" onclick="quick('Миранда')">⚖️ Миранда</div>
-            <div class="tag" onclick="quick('Задержание по наркотикам')">💊 Наркотики</div>
-            <div class="tag" onclick="quick('Статья 17.6 УК')">🛑 Неподчинение</div>
-            <div class="tag" onclick="quick('Вторичный обыск')">🔍 Обыск</div>
-        </div>
-        <div class="input-box">
-            <button class="action-btn" id="mic"><i class="fas fa-microphone"></i></button>
-            <input type="text" id="userInput" placeholder="Спросить ассистента..." autocomplete="off">
-            <button class="action-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
-        </div>
+    <div class="input-group">
+        <button class="btn" id="mic"><i class="fas fa-microphone"></i></button>
+        <input type="text" id="userInput" placeholder="Ваш запрос..." autocomplete="off">
+        <button class="btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
 
 <script>
     const KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec';
-    // Используем стабильный путь v1
-    const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+    // Используем максимально надежный URL
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
 
     const chat = document.getElementById('chat');
     const input = document.getElementById('userInput');
     const typing = document.getElementById('typing');
+    const debug = document.getElementById('debugLog');
+
+    function logError(msg) {
+        debug.style.display = 'block';
+        debug.innerText = "ОШИБКА: " + msg;
+    }
 
     async function sendMsg() {
         const text = input.value.trim();
         if (!text) return;
 
-        add(text, 'user');
+        addMsg(text, 'user');
         input.value = '';
         typing.style.display = 'block';
+        debug.style.display = 'none';
         chat.scrollTop = chat.scrollHeight;
 
         try {
-            const res = await fetch(URL, {
+            const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Ты - ассистент LSPD на Majestic Phoenix. Отвечай кратко, используй УК и ПК. Запрос: ${text}` }] }]
+                    contents: [{ parts: [{ text: `Ты - ассистент LSPD на Majestic RP Phoenix. Отвечай кратко по делу. Запрос: ${text}` }] }]
                 })
             });
 
-            const data = await res.json();
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error ? errData.error.message : response.statusText);
+            }
+
+            const data = await response.json();
             typing.style.display = 'none';
 
             if (data.candidates && data.candidates[0].content) {
-                add(data.candidates[0].content.parts[0].text, 'bot');
+                addMsg(data.candidates[0].content.parts[0].text, 'bot');
             } else {
-                add("Ошибка: Модель не ответила. Проверьте консоль.", 'bot');
-                console.error(data);
+                logError("Получен пустой ответ от API.");
             }
-        } catch (err) {
+        } catch (e) {
             typing.style.display = 'none';
-            add("Сбой связи. Проверьте интернет или ключ API.", 'bot');
+            logError(e.message);
+            addMsg("Сбой связи. Проверьте лог внизу.", 'bot');
         }
     }
 
-    function add(t, type) {
+    function addMsg(t, type) {
         const d = document.createElement('div');
         d.className = `msg ${type}`;
         d.innerHTML = t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
@@ -202,16 +126,15 @@
     }
 
     function quick(v) { input.value = v; sendMsg(); }
+    input.onkeypress = (e) => { if(e.key === 'Enter') sendMsg(); };
 
-    input.onkeypress = (e) => e.key === 'Enter' && sendMsg();
-
-    // Голос
-    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (Recognition) {
-        const rec = new Recognition(); rec.lang = 'ru-RU';
-        document.getElementById('mic').onclick = () => { rec.start(); document.getElementById('mic').classList.add('mic-on'); };
-        rec.onresult = (e) => { input.value = e.results[0][0].transcript; sendMsg(); };
-        rec.onend = () => document.getElementById('mic').classList.remove('mic-on');
+    // Голосовой ввод (может не работать в простых мобильных "открывашках" файлов)
+    const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (Rec) {
+        const r = new Rec(); r.lang = 'ru-RU';
+        document.getElementById('mic').onclick = () => { try { r.start(); document.getElementById('mic').classList.add('mic-active'); } catch(e) { logError("Голос недоступен"); } };
+        r.onresult = (e) => { input.value = e.results[0][0].transcript; sendMsg(); };
+        r.onend = () => document.getElementById('mic').classList.remove('mic-active');
     }
 </script>
 </body>
