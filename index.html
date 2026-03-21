@@ -3,69 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BE PHOENIX LSPD | Assistant</title>
+    <title>BE PHOENIX LSPD | Terminal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main-blue: #1e3a8a; --bg-dark: #0f172a; --text-light: #f1f5f9; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-dark); color: var(--text-light); margin: 0; display: flex; justify-content: center; height: 100vh; }
-        #app { width: 100%; max-width: 500px; display: flex; flex-direction: column; background: #1e293b; border-left: 2px solid var(--main-blue); border-right: 2px solid var(--main-blue); }
-        header { background: var(--main-blue); padding: 15px; text-align: center; font-weight: bold; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        #chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg { max-width: 85%; padding: 10px 15px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+        :root { --primary: #3b82f6; --bg: #020617; --card: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; height: 100vh; }
+        #app { width: 100%; max-width: 600px; display: flex; flex-direction: column; background: #0f172a; border: 1px solid #1e40af; position: relative; }
+        
+        /* Header */
+        header { background: #1e40af; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .status { font-size: 12px; color: #4ade80; display: flex; align-items: center; gap: 5px; }
+        .status::before { content: ''; width: 8px; height: 8px; background: #4ade80; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #4ade80; }
+
+        /* Chat Area */
+        #chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .msg { max-width: 80%; padding: 12px 16px; border-radius: 15px; font-size: 14px; position: relative; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .user { align-self: flex-end; background: #334155; border-bottom-right-radius: 2px; }
-        .bot { align-self: flex-start; background: #1e40af; border-bottom-left-radius: 2px; white-space: pre-wrap; }
-        .controls { padding: 15px; background: #0f172a; display: flex; gap: 10px; }
-        input { flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px; outline: none; }
-        button { background: var(--main-blue); border: none; color: white; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        button:hover { opacity: 0.9; }
+        .bot { align-self: flex-start; background: #1e40af; border-bottom-left-radius: 2px; line-height: 1.6; }
+        
+        /* Controls */
+        .input-wrap { padding: 20px; background: #1e293b; border-top: 1px solid #334155; }
+        .input-group { display: flex; gap: 10px; background: #0f172a; padding: 5px; border-radius: 12px; border: 1px solid #334155; }
+        input { flex: 1; background: transparent; border: none; color: white; padding: 12px; outline: none; font-size: 15px; }
+        
+        .btn { background: #1e40af; border: none; color: white; width: 45px; height: 45px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn:hover { background: #3b82f6; transform: scale(1.05); }
+        .btn-mic.active { background: #ef4444; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        /* Quick Buttons */
+        .quick-actions { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; }
+        .tag { background: #334155; padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .tag:hover { background: #475569; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <header>BE PHOENIX LSPD v1.0</header>
+    <header>
+        <div style="font-weight: 800; font-size: 18px;">BE PHOENIX LSPD</div>
+        <div class="status">ОФИЦЕР В СЕТИ</div>
+    </header>
+
     <div id="chat">
-        <div class="msg bot">Офицер, база данных загружена. Жду запрос по статьям или порядку задержания.</div>
+        <div class="msg bot">Система активна. Голосовой ввод готов. <br>Назовите статью или ситуацию для анализа.</div>
     </div>
-    <div class="controls">
-        <input type="text" id="userInput" placeholder="Статья, Миранда, Порядок..." onkeypress="if(event.key==='Enter') sendMessage()">
-        <button onclick="sendMessage()">SEND</button>
+
+    <div class="input-wrap">
+        <div class="quick-actions">
+            <div class="tag" onclick="quickSend('Миранда')">📢 Миранда</div>
+            <div class="tag" onclick="quickSend('Статья 13.1 УК')">💊 Наркотики</div>
+            <div class="tag" onclick="quickSend('Этапы задержания')">🚔 Процесс</div>
+            <div class="tag" onclick="quickSend('Статья 17.1 УК')">👊 Нападение</div>
+        </div>
+        <div class="input-group">
+            <button class="btn btn-mic" id="micBtn" title="Голосовой ввод">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <input type="text" id="userInput" placeholder="Введите запрос..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button class="btn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
     </div>
 </div>
 
 <script>
-    // ВСТАВЬ СВОЙ КЛЮЧ ТУТ
     const API_KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec'; 
     const chat = document.getElementById('chat');
+    const micBtn = document.getElementById('micBtn');
+    const userInput = document.getElementById('userInput');
 
+    // --- ГОЛОСОВОЙ ВВОД ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ru-RU';
+        
+        micBtn.onclick = () => {
+            recognition.start();
+            micBtn.classList.add('active');
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            userInput.value = transcript;
+            micBtn.classList.remove('active');
+            sendMessage();
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+            micBtn.classList.remove('active');
+        };
+    } else {
+        micBtn.style.display = 'none';
+    }
+
+    // --- ОТПРАВКА СООБЩЕНИЙ ---
     async function sendMessage() {
-        const input = document.getElementById('userInput');
-        const text = input.value.trim();
+        const text = userInput.value.trim();
         if (!text) return;
 
         addMessage(text, 'user');
-        input.value = '';
+        userInput.value = '';
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Ты - ИИ помощник LSPD на Majestic RP Phoenix. Твоя база: УК, ПК и законы штата. Отвечай кратко, по делу, структурировано. Пользователь спрашивает: ${text}` }] }]
+                    contents: [{ parts: [{ text: `Инструкция: Ты - краткий ИИ-помощник LSPD на Majestic Phoenix. Отвечай только по делу, используя УК и ПК штата. Запрос: ${text}` }] }]
                 })
             });
 
             const data = await response.json();
+            if (data.error) throw new Error(data.error.message);
+            
             const reply = data.candidates[0].content.parts[0].text;
             addMessage(reply, 'bot');
         } catch (e) {
-            addMessage("Ошибка связи с базой. Проверь API ключ.", 'bot');
+            console.error(e);
+            addMessage(`Сбой системы: ${e.message}. Проверьте соединение или лимиты ключа.`, 'bot');
         }
+    }
+
+    function quickSend(val) {
+        userInput.value = val;
+        sendMessage();
     }
 
     function addMessage(text, side) {
         const div = document.createElement('div');
         div.className = `msg ${side}`;
-        div.innerText = text;
+        div.innerHTML = text.replace(/\n/g, '<br>');
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
     }
