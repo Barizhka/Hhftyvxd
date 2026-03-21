@@ -6,115 +6,213 @@
     <title>BE PHOENIX LSPD | Digital Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --blue: #00d2ff; --dark-blue: #3a7bd5; --bg: #050b18; --glass: rgba(255, 255, 255, 0.05); }
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #e0e0e0; margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        :root {
+            --bg-color: #0b0e14;
+            --panel-color: #161b22;
+            --accent-blue: #4e8cff;
+            --user-msg: #2d333b;
+            --bot-msg: #1e2530;
+            --text-main: #e6edf3;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 650px;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-color);
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            border-left: 1px solid #30363d;
+            border-right: 1px solid #30363d;
+        }
+
+        header {
+            padding: 20px;
+            background: rgba(22, 27, 34, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title { font-weight: 700; font-size: 1.1rem; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
+        .online-dot { width: 10px; height: 10px; background: #238636; border-radius: 50%; box-shadow: 0 0 8px #238636; }
+
+        #chat {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .user { align-self: flex-end; background: var(--user-msg); border-bottom-right-radius: 4px; border: 1px solid #444c56; }
+        .bot { align-self: flex-start; background: var(--bot-msg); border: 1px solid #30363d; border-bottom-left-radius: 4px; }
+
+        /* typing indicator */
+        #typing {
+            display: none;
+            align-self: flex-start;
+            margin-left: 10px;
+            padding: 10px;
+            font-size: 13px;
+            color: #8b949e;
+        }
+        .dot { display: inline-block; width: 4px; height: 4px; background: #8b949e; border-radius: 50%; margin-right: 3px; animation: wave 1.3s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes wave { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+
+        .footer {
+            padding: 20px;
+            background: #0d1117;
+            border-top: 1px solid #30363d;
+        }
+
+        .quick-tags { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; scrollbar-width: none; }
+        .tag { background: #21262d; border: 1px solid #30363d; padding: 6px 14px; border-radius: 12px; font-size: 12px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .tag:hover { border-color: var(--accent-blue); background: #30363d; }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 8px 15px;
+            transition: border-color 0.2s;
+        }
+        .input-box:focus-within { border-color: var(--accent-blue); }
+
+        input { flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; font-size: 14px; }
         
-        #app { width: 100%; max-width: 550px; background: radial-gradient(circle at top, #112244, #050b18); display: flex; flex-direction: column; border-left: 1px solid rgba(0, 210, 255, 0.3); border-right: 1px solid rgba(0, 210, 255, 0.3); box-shadow: 0 0 50px rgba(0,0,0,1); }
-        
-        header { padding: 20px; border-bottom: 1px solid var(--glass); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); }
-        .logo { font-weight: 900; letter-spacing: 2px; color: var(--blue); text-shadow: 0 0 10px var(--blue); font-size: 1.2rem; }
-        .badge { background: #00d2ff22; color: var(--blue); padding: 4px 10px; border-radius: 4px; font-size: 10px; border: 1px solid var(--blue); }
-
-        #chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scrollbar-width: none; }
-        #chat::-webkit-scrollbar { display: none; }
-
-        .msg { max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 14px; line-height: 1.6; position: relative; backdrop-filter: blur(5px); transition: 0.3s; }
-        .user { align-self: flex-end; background: linear-gradient(135deg, #3a7bd5, #00d2ff); color: white; border-bottom-right-radius: 2px; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2); }
-        .bot { align-self: flex-start; background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-bottom-left-radius: 2px; }
-
-        /* Preparing message indicator */
-        #typing { display: none; padding: 10px 20px; font-size: 12px; color: var(--blue); font-style: italic; align-self: flex-start; }
-        .dots { display: inline-block; width: 40px; }
-        .dots::after { content: '...'; animation: dots 1.5s infinite; }
-        @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
-
-        .input-area { padding: 20px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--glass); }
-        .quick-box { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; }
-        .tag { padding: 6px 12px; background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; font-size: 11px; white-space: nowrap; cursor: pointer; }
-        .tag:hover { border-color: var(--blue); color: var(--blue); }
-
-        .input-group { display: flex; background: #000; border-radius: 12px; border: 1px solid var(--glass); padding: 5px; align-items: center; }
-        input { flex: 1; background: none; border: none; color: white; padding: 12px; outline: none; font-size: 14px; }
-        .btn { border: none; background: none; color: #666; cursor: pointer; font-size: 18px; padding: 10px; transition: 0.3s; }
-        .btn:hover { color: var(--blue); }
-        .btn-send { color: var(--blue); }
-        .mic-active { color: #ff4b2b !important; text-shadow: 0 0 10px #ff4b2b; }
+        .action-btn { background: none; border: none; color: #8b949e; cursor: pointer; font-size: 18px; padding: 8px; transition: 0.2s; }
+        .action-btn:hover { color: var(--accent-blue); }
+        .mic-on { color: #f85149 !important; }
     </style>
 </head>
 <body>
 
 <div id="app">
     <header>
-        <div class="logo">PHOENIX LSPD</div>
-        <div class="badge">CPD UNIT</div>
+        <div class="header-title"><i class="fas fa-shield-halved"></i> BE PHOENIX LSPD</div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 11px; color: #8b949e;">DATABASE SYNC</span>
+            <div class="online-dot"></div>
+        </div>
     </header>
 
     <div id="chat">
-        <div class="msg bot">Офицер, база данных синхронизирована. Жду ваших указаний.</div>
+        <div class="msg bot">Офицер, система готова. Чем могу помочь?</div>
     </div>
 
-    <div id="typing">Обработка данных подразделением ИИ<span class="dots"></span></div>
+    <div id="typing">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <span>ИИ обрабатывает запрос...</span>
+    </div>
 
-    <div class="input-area">
-        <div class="quick-box">
-            <div class="tag" onclick="fast('Миранда')">⚖️ Миранда</div>
-            <div class="tag" onclick="fast('Статья 13.1 УК')">💊 Наркотики</div>
-            <div class="tag" onclick="fast('Статья 17.6 УК')">🛑 Неподчинение</div>
-            <div class="tag" onclick="fast('Порядок задержания')">🚔 Процесс</div>
+    <div class="footer">
+        <div class="quick-tags">
+            <div class="tag" onclick="quick('Миранда')">⚖️ Миранда</div>
+            <div class="tag" onclick="quick('Задержание по наркотикам')">💊 Наркотики</div>
+            <div class="tag" onclick="quick('Статья 17.6 УК')">🛑 Неподчинение</div>
+            <div class="tag" onclick="quick('Вторичный обыск')">🔍 Обыск</div>
         </div>
-        <div class="input-group">
-            <button class="btn" id="mic"><i class="fas fa-microphone"></i></button>
-            <input type="text" id="userInput" placeholder="Запрос в базу..." autocomplete="off">
-            <button class="btn btn-send" onclick="send()"><i class="fas fa-paper-plane"></i></button>
+        <div class="input-box">
+            <button class="action-btn" id="mic"><i class="fas fa-microphone"></i></button>
+            <input type="text" id="userInput" placeholder="Спросить ассистента..." autocomplete="off">
+            <button class="action-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 </div>
 
 <script>
-    const API_KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec';
-    const MODEL = "gemini-1.5-flash"; // Имя модели без префиксов для v1
+    const KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec';
+    // Используем стабильный путь v1
+    const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+
     const chat = document.getElementById('chat');
     const input = document.getElementById('userInput');
     const typing = document.getElementById('typing');
 
-    async function send() {
+    async function sendMsg() {
         const text = input.value.trim();
         if (!text) return;
 
-        addMsg(text, 'user');
+        add(text, 'user');
         input.value = '';
         typing.style.display = 'block';
         chat.scrollTop = chat.scrollHeight;
 
         try {
-            // Переход на стабильную версию V1
-            const url = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent?key=${API_KEY}`;
-            
-            const response = await fetch(url, {
+            const res = await fetch(URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Ты - ассистент офицера LSPD на сервере Majestic Phoenix. Отвечай кратко, используй УК и ПК. Текущий запрос: ${text}` }] }]
+                    contents: [{ parts: [{ text: `Ты - ассистент LSPD на Majestic Phoenix. Отвечай кратко, используй УК и ПК. Запрос: ${text}` }] }]
                 })
             });
 
-            const data = await response.json();
+            const data = await res.json();
             typing.style.display = 'none';
 
             if (data.candidates && data.candidates[0].content) {
-                let reply = data.candidates[0].content.parts[0].text;
-                addMsg(reply, 'bot');
+                add(data.candidates[0].content.parts[0].text, 'bot');
             } else {
-                console.error("API Error:", data);
-                addMsg("Ошибка доступа. Проверьте статус API в консоли (F12).", 'bot');
+                add("Ошибка: Модель не ответила. Проверьте консоль.", 'bot');
+                console.error(data);
             }
         } catch (err) {
             typing.style.display = 'none';
-            addMsg("Сбой связи. Проверьте интернет или API ключ.", 'bot');
+            add("Сбой связи. Проверьте интернет или ключ API.", 'bot');
         }
     }
 
-    function addMsg(text, type) {
+    function add(t, type) {
         const d = document.createElement('div');
-        d.className
+        d.className = `msg ${type}`;
+        d.innerHTML = t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        chat.appendChild(d);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function quick(v) { input.value = v; sendMsg(); }
+
+    input.onkeypress = (e) => e.key === 'Enter' && sendMsg();
+
+    // Голос
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (Recognition) {
+        const rec = new Recognition(); rec.lang = 'ru-RU';
+        document.getElementById('mic').onclick = () => { rec.start(); document.getElementById('mic').classList.add('mic-on'); };
+        rec.onresult = (e) => { input.value = e.results[0][0].transcript; sendMsg(); };
+        rec.onend = () => document.getElementById('mic').classList.remove('mic-on');
+    }
+</script>
+</body>
+</html>
