@@ -6,187 +6,211 @@
     <title>Phoenix Legal Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --blue: #2563eb; --blue-dark: #1d4ed8; --bg: #f8fafc; --text: #0f172a; --border: #e2e8f0; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-
-        /* Sidebar */
-        .sidebar { width: 280px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: 0.3s; z-index: 1000; }
-        .sidebar-header { padding: 24px; font-weight: 800; font-size: 20px; color: var(--blue); border-bottom: 1px solid var(--border); letter-spacing: -0.5px; }
-        .nav { flex: 1; overflow-y: auto; padding: 15px; }
-        .nav-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin: 20px 0 10px 10px; letter-spacing: 1px; }
-        .nav-item { padding: 12px 15px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; color: #475569; transition: 0.2s; margin-bottom: 4px; }
-        .nav-item:hover { background: #f1f5f9; color: var(--blue); }
-        .nav-item.active { background: #eff6ff; color: var(--blue); }
-
-        /* Main */
-        .main { flex: 1; display: flex; flex-direction: column; background: #fff; position: relative; }
-        header { height: 70px; padding: 0 25px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fff; }
-        .mobile-menu-btn { display: none; font-size: 20px; cursor: pointer; color: var(--blue); }
-
-        /* Timer */
-        .timer-pill { background: #fef2f2; border: 1px solid #fee2e2; color: #ef4444; padding: 8px 16px; border-radius: 30px; font-weight: 700; font-family: 'Courier New', monospace; cursor: pointer; font-size: 15px; transition: 0.2s; }
-        .timer-pill:hover { background: #fee2e2; }
-        .timer-pill.active { background: #ef4444; color: #fff; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
-
-        /* Chat Area */
-        #chat { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
-        .message { max-width: 85%; line-height: 1.6; font-size: 15px; animation: fadeIn 0.3s ease; }
-        .user-msg { align-self: flex-end; background: #f1f5f9; padding: 12px 20px; border-radius: 18px 18px 2px 18px; color: #1e293b; border: 1px solid #e2e8f0; }
-        .bot-msg { align-self: flex-start; background: #fff; color: #334155; }
-        .bot-msg b { color: var(--blue); }
-        
-        /* Input Area */
-        .input-container { padding: 25px; background: #fff; border-top: 1px solid var(--border); }
-        .input-box { max-width: 900px; margin: 0 auto; display: flex; background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 6px 12px; transition: 0.3s; align-items: center; }
-        .input-box:focus-within { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); background: #fff; }
-        input { flex: 1; background: none; border: none; padding: 12px; outline: none; font-size: 16px; color: var(--text); }
-        .send-btn { background: var(--blue); color: #fff; border: none; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .send-btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
-
-        /* Loader */
-        #loader { display: none; padding-left: 30px; margin-bottom: 20px; font-size: 13px; color: #94a3b8; font-weight: 500; }
-
-        /* Mobile */
-        @media (max-width: 850px) {
-            .sidebar { position: absolute; left: -280px; height: 100%; }
-            .sidebar.open { left: 0; box-shadow: 20px 0 50px rgba(0,0,0,0.1); }
-            .mobile-menu-btn { display: block; }
+        :root {
+            --bg: #0f1014;
+            --panel: #16171d;
+            --accent: #ffffff;
+            --text-main: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: #26272e;
+            --blue: #3b82f6;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background: var(--bg); color: var(--text-main); 
+            margin: 0; height: 100vh; display: flex; flex-direction: column; 
+        }
+
+        /* Верхняя навигация как на скриншоте */
+        nav {
+            display: flex; justify-content: center; gap: 5px;
+            padding: 15px; background: var(--bg);
+        }
+        .nav-wrap {
+            background: var(--panel); border-radius: 12px;
+            display: flex; padding: 4px; border: 1px solid var(--border);
+        }
+        .nav-btn {
+            padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+            cursor: pointer; color: var(--text-dim); transition: 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .nav-btn.active { background: #26272e; color: #fff; }
+
+        /* Контентные зоны */
+        .content-area { flex: 1; overflow-y: auto; display: none; padding: 20px; }
+        .content-area.active { display: block; }
+
+        /* Вкладка АССИСТЕНТ */
+        .assistant-hero { text-align: center; margin-top: 50px; }
+        .brain-icon { font-size: 50px; margin-bottom: 20px; display: block; }
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+        .sub-text { color: var(--text-dim); font-size: 14px; margin-bottom: 30px; }
+        
+        .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 600px; margin: 0 auto; }
+        .chip { 
+            background: var(--panel); border: 1px solid var(--border);
+            padding: 10px 18px; border-radius: 20px; font-size: 13px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .chip:hover { border-color: var(--blue); }
+
+        /* Вкладка ПАМЯТКИ (как на скрине 2) */
+        .search-bar {
+            background: var(--panel); border: 1px solid var(--border);
+            border-radius: 12px; padding: 12px 15px; width: 100%;
+            color: #fff; margin-bottom: 20px; outline: none;
+        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .card {
+            background: var(--panel); border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px; position: relative;
+        }
+        .card-tag { font-size: 11px; font-weight: 700; color: #f87171; margin-bottom: 8px; }
+        .card-title { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+        .card-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
+
+        /* Чат (появляется при запросе) */
+        #chat-results { max-width: 700px; margin: 20px auto; display: none; }
+        .msg { background: var(--panel); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 10px; font-size: 14px; line-height: 1.6; }
+        .msg b { color: var(--blue); }
+
+        /* Футер ввода */
+        .input-sticky {
+            padding: 20px; background: var(--bg); border-top: 1px solid var(--border);
+        }
+        .input-wrap {
+            max-width: 700px; margin: 0 auto; display: flex;
+            background: var(--panel); border-radius: 14px; padding: 5px 15px;
+            border: 1px solid var(--border); align-items: center;
+        }
+        input { flex: 1; background: none; border: none; color: #fff; padding: 12px; outline: none; font-size: 16px; }
+        .send-btn { color: var(--blue); font-size: 18px; cursor: pointer; background: none; border: none; }
+
+        .loader { display: none; color: var(--blue); text-align: center; margin-bottom: 10px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">PHOENIX LAW</div>
-    <div class="nav">
-        <div class="nav-label">БЫСТРЫЙ ПОИСК</div>
-        <div class="nav-item active" onclick="ask('Расскажи основные статьи Уголовного Кодекса')"><i class="fas fa-gavel"></i> Уголовный кодекс</div>
-        <div class="nav-item" onclick="ask('Порядок задержания Процессуальный кодекс')"><i class="fas fa-handcuffs"></i> Процессуальный кодекс</div>
-        <div class="nav-item" onclick="ask('Статьи Административного кодекса')"><i class="fas fa-file-invoice-dollar"></i> Админ. кодекс</div>
-        <div class="nav-label">ИНСТРУМЕНТЫ</div>
-        <div class="nav-item" onclick="ask('Зачитай правило Миранды')"><i class="fas fa-bullhorn"></i> Миранда</div>
-        <div class="nav-item" onclick="ask('Как проводить вторичный обыск?')"><i class="fas fa-magnifying-glass"></i> Обыск</div>
-        <div class="nav-item" onclick="window.location.reload()"><i class="fas fa-rotate"></i> Сбросить сессию</div>
+<nav>
+    <div class="nav-wrap">
+        <div class="nav-btn" onclick="tab('docs')"><i class="far fa-file-alt"></i> Документы</div>
+        <div class="nav-btn" onclick="tab('laws')"><i class="fas fa-search"></i> Законы</div>
+        <div class="nav-btn active" onclick="tab('ai')"><i class="fas fa-brain"></i> Ассистент</div>
+        <div class="nav-btn" onclick="tab('memo')"><i class="far fa-bookmark"></i> Памятки</div>
     </div>
-</aside>
+</nav>
 
-<main class="main">
-    <header>
-        <div class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
-        <div style="font-weight: 700; color: #64748b; font-size: 14px;">LSPD ASSISTANT</div>
-        <div id="timer" class="timer-pill" onclick="handleTimer()">05:00</div>
-    </header>
-
-    <div id="chat">
-        <div class="message bot-msg">
-            <b>Система авторизована.</b> Добро пожаловать в юридический портал Phoenix. <br>
-            Я помогу быстро найти статью УК, ПК или зачитать Миранду. Какой у вас запрос?
+<div id="ai" class="content-area active">
+    <div class="assistant-hero" id="hero">
+        <span class="brain-icon">🧠</span>
+        <h1>Чем могу помочь?</h1>
+        <p class="sub-text">Отвечает искусственный интеллект Phoenix<br>Используя законы сервера ⚖️</p>
+        
+        <div class="chips">
+            <div class="chip" onclick="ask('Как работает суд?')">Как работает суд?</div>
+            <div class="chip" onclick="ask('Чем занимается прокуратура?')">Чем занимается прокуратура?</div>
+            <div class="chip" onclick="ask('Как защитить обвиняемого за убийство?')">Защита в суде</div>
+            <div class="chip" onclick="ask('Миранда и порядок задержания')">Порядок задержания</div>
         </div>
     </div>
+    <div id="chat-results"></div>
+</div>
 
-    <div id="loader"><i class="fas fa-spinner fa-spin"></i> Обращение к законодательной базе...</div>
-
-    <footer class="input-container">
-        <div class="input-box">
-            <input type="text" id="userInput" placeholder="Введите статью или вопрос..." autocomplete="off">
-            <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+<div id="memo" class="content-area">
+    <input type="text" class="search-bar" placeholder="Поиск по памятке...">
+    <div class="grid">
+        <div class="card" onclick="ask('Зачитай 6.1 УК')">
+            <div class="card-tag">6.1 УК</div>
+            <div class="card-title">Телесные повреждения</div>
+            <div class="card-desc">До 20 месяцев лишения свободы.</div>
         </div>
-    </footer>
-</main>
+        <div class="card" onclick="ask('Зачитай 13.2 УК')">
+            <div class="card-tag">13.2 УК</div>
+            <div class="card-title">Хранение наркотиков</div>
+            <div class="card-desc">От 30 до 50 месяцев. Создание записи о судимости.</div>
+        </div>
+        <div class="card">
+            <div class="card-tag">ПРОЦЕСС</div>
+            <div class="card-title">Порядок задержания</div>
+            <div class="card-desc">1. Наручники -> 2. Представиться -> 3. Причина -> 4. Миранда...</div>
+        </div>
+    </div>
+</div>
+
+<div id="docs" class="content-area"><h1>Документы</h1><p>Раздел в разработке...</p></div>
+<div id="laws" class="content-area"><h1>Законы</h1><p>Раздел в разработке...</p></div>
+
+<div class="loader" id="loader"><i class="fas fa-spinner fa-spin"></i> Обработка запроса...</div>
+
+<footer class="input-sticky">
+    <div class="input-wrap">
+        <input type="text" id="userInput" placeholder="Спросите ассистента...">
+        <button class="send-btn" onclick="send()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</footer>
 
 <script>
-    const API_KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec';
-    // Обновленный URL для работы с v1beta напрямую
-    const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    // ТВОЙ НОВЫЙ КЛЮЧ ВСТАВЛЯТЬ СЮДА
+    const API_KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec'; 
+    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-    const chat = document.getElementById('chat');
-    const input = document.getElementById('userInput');
-    const loader = document.getElementById('loader');
+    function tab(id) {
+        document.querySelectorAll('.content-area').forEach(a => a.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
 
-    async function sendMessage() {
+    async function send() {
+        const input = document.getElementById('userInput');
         const text = input.value.trim();
-        if (!text) return;
+        if(!text) return;
 
-        appendMessage(text, 'user-msg');
         input.value = '';
-        loader.style.display = 'block';
-        chat.scrollTop = chat.scrollHeight;
+        document.getElementById('hero').style.display = 'none';
+        const resDiv = document.getElementById('chat-results');
+        resDiv.style.display = 'block';
+        document.getElementById('loader').style.display = 'block';
+
+        // Добавляем вопрос пользователя
+        resDiv.innerHTML += `<div class="msg" style="border-color: #3b82f6;"><b>Вы:</b> ${text}</div>`;
+        resDiv.scrollTop = resDiv.scrollHeight;
 
         try {
-            const response = await fetch(ENDPOINT, {
+            const response = await fetch(URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Ты - юридический ассистент LSPD на Majestic RP Phoenix. Твоя задача - давать краткие и точные справки по УК, ПК и законам штата. Отвечай структурировано. Запрос: ${text}` }] }]
+                    contents: [{ parts: [{ text: `Ты - ассистент LSPD Majestic RP Phoenix. Отвечай кратко по законам. Запрос: ${text}` }] }]
                 })
             });
 
             const data = await response.json();
-            loader.style.display = 'none';
+            document.getElementById('loader').style.display = 'none';
 
-            if (data.candidates && data.candidates[0].content) {
-                const reply = data.candidates[0].content.parts[0].text;
-                appendMessage(reply, 'bot-msg');
+            if (data.candidates) {
+                const botText = data.candidates[0].content.parts[0].text;
+                resDiv.innerHTML += `<div class="msg"><b>Ассистент:</b><br>${botText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}</div>`;
             } else {
-                console.error(data);
-                appendMessage("<b>Ошибка:</b> Не удалось получить ответ. Проверьте API-ключ или лимиты запросов.", 'bot-msg');
+                resDiv.innerHTML += `<div class="msg" style="color:#ef4444">Ошибка API. Проверьте ключ или VPN.</div>`;
             }
         } catch (e) {
-            loader.style.display = 'none';
-            appendMessage("<b>Сбой связи:</b> Проверьте интернет-соединение.", 'bot-msg');
+            document.getElementById('loader').style.display = 'none';
+            resDiv.innerHTML += `<div class="msg" style="color:#ef4444">Сбой сети. Проверьте соединение.</div>`;
         }
+        resDiv.scrollTop = resDiv.scrollHeight;
     }
 
-    function appendMessage(text, className) {
-        const div = document.createElement('div');
-        div.className = `message ${className}`;
-        // Форматирование жирного текста и переносов
-        div.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-        chat.appendChild(div);
-        chat.scrollTop = chat.scrollHeight;
+    function ask(t) {
+        tab('ai');
+        document.getElementById('userInput').value = t;
+        send();
     }
 
-    function ask(val) {
-        input.value = val;
-        sendMessage();
-        if (window.innerWidth < 850) toggleSidebar();
-    }
-
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('open');
-    }
-
-    input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
-
-    // Логика Таймера
-    let seconds = 300;
-    let timerInterval = null;
-    function handleTimer() {
-        const timerEl = document.getElementById('timer');
-        if (timerInterval) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            seconds = 300;
-            timerEl.innerText = "05:00";
-            timerEl.classList.remove('active');
-        } else {
-            timerEl.classList.add('active');
-            timerInterval = setInterval(() => {
-                seconds--;
-                let m = Math.floor(seconds / 60);
-                let s = seconds % 60;
-                timerEl.innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
-                if (seconds <= 0) {
-                    clearInterval(timerInterval);
-                    alert("ВРЕМЯ ВЫШЛО!");
-                }
-            }, 1000);
-        }
-    }
+    document.getElementById('userInput').onkeypress = (e) => e.key === 'Enter' && send();
 </script>
 </body>
 </html>
