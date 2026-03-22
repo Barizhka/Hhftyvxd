@@ -3,104 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PHOENIX LSPD TERMINAL</title>
+    <title>BE PHOENIX LSPD | Terminal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #0d1117; --panel: #161b22; --blue: #58a6ff; --text: #c9d1d9; --green: #3fb950; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; }
+        :root { --blue: #00a2ff; --bg: #05070a; --glass: rgba(255, 255, 255, 0.03); --border: rgba(0, 162, 255, 0.2); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #e0e0e0; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        header { padding: 15px; background: var(--panel); border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
-        .title { color: var(--blue); font-weight: bold; font-size: 14px; text-transform: uppercase; }
+        /* Header */
+        header { padding: 15px 20px; background: rgba(0,0,0,0.5); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
+        .logo { font-weight: 900; color: var(--blue); letter-spacing: 2px; font-size: 16px; text-shadow: 0 0 10px var(--blue); }
+        .timer { font-family: monospace; color: #ff4b2b; font-size: 14px; border: 1px solid #ff4b2b; padding: 2px 8px; border-radius: 4px; }
 
-        #chat { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 85%; padding: 12px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
-        .user { align-self: flex-end; background: #238636; color: white; border-bottom-right-radius: 2px; }
-        .bot { align-self: flex-start; background: #21262d; border: 1px solid #30363d; border-bottom-left-radius: 2px; }
+        /* Чат */
+        #chat { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: radial-gradient(circle at center, #0a1122 0%, #05070a 100%); }
+        .msg { max-width: 88%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; position: relative; border: 1px solid transparent; animation: slide 0.3s ease; }
+        @keyframes slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .user { align-self: flex-end; background: linear-gradient(135deg, #0062ff, #00a2ff); color: white; border-bottom-right-radius: 2px; }
+        .bot { align-self: flex-start; background: var(--glass); border-color: var(--border); border-bottom-left-radius: 2px; }
 
-        #typing { display: none; padding: 5px 15px; font-size: 12px; color: #8b949e; animation: pulse 1s infinite; }
-        @keyframes pulse { 50% { opacity: 0.5; } }
+        /* Индикатор подготовки */
+        #status-bar { display: none; padding: 8px 20px; font-size: 11px; color: var(--blue); background: rgba(0,0,0,0.3); }
+        .loading-dots::after { content: ''; animation: dots 1.5s infinite; }
+        @keyframes dots { 0% {content:'.'} 33% {content:'..'} 66% {content:'...'} }
 
-        #errorBox { display: none; background: #f8514922; color: #f85149; padding: 10px; font-size: 11px; border: 1px solid #f85149; margin: 10px; border-radius: 5px; }
+        /* Нижняя панель */
+        .controls { padding: 15px; background: #0a0d14; border-top: 1px solid var(--border); }
+        .quick-actions { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: none; }
+        .action-tag { background: #1c2128; border: 1px solid #30363d; padding: 6px 14px; border-radius: 20px; font-size: 11px; white-space: nowrap; transition: 0.2s; }
+        .action-tag:active { background: var(--blue); color: #000; }
 
-        .footer { padding: 15px; background: var(--panel); border-top: 1px solid #30363d; }
-        .input-wrap { display: flex; gap: 8px; background: #0d1117; border-radius: 25px; padding: 5px 15px; border: 1px solid #30363d; align-items: center; }
-        input { flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; font-size: 16px; }
-        
-        .btn { background: none; border: none; color: var(--blue); font-size: 18px; cursor: pointer; }
-        .tags { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
-        .tag { background: #21262d; padding: 6px 12px; border-radius: 15px; font-size: 11px; white-space: nowrap; border: 1px solid #30363d; }
+        .input-group { display: flex; background: #000; border: 1px solid var(--border); border-radius: 15px; padding: 5px; align-items: center; box-shadow: 0 0 15px rgba(0, 162, 255, 0.1); }
+        input { flex: 1; background: none; border: none; color: white; padding: 10px; outline: none; font-size: 16px; }
+        .icon-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--blue); cursor: pointer; font-size: 18px; transition: 0.2s; }
+        .icon-btn:active { transform: scale(0.9); opacity: 0.7; }
+
+        /* Ошибки */
+        #debug { position: absolute; bottom: 85px; left: 10px; right: 10px; background: #ff4b2b; color: white; font-size: 10px; padding: 10px; border-radius: 8px; display: none; z-index: 100; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="title"><i class="fas fa-shield-halved"></i> PHOENIX LSPD v4.0</div>
-    <div style="font-size: 10px; color: var(--green);">● СВЯЗЬ АКТИВНА</div>
+    <div class="logo"><i class="fas fa-tower-broadcast"></i> PHOENIX LSPD</div>
+    <div id="t-display" class="timer" onclick="startTimer()">05:00</div>
 </header>
 
 <div id="chat">
-    <div class="msg bot">Офицер, терминал обновлен до версии 4.0. Протокол <b>v1 Stable</b> запущен. Жду запрос.</div>
+    <div class="msg bot">Терминал v5.0 запущен. База данных Majestic Phoenix синхронизирована. <br><br><i>Нажмите на таймер, чтобы запустить отсчет 5 минут.</i></div>
 </div>
 
-<div id="typing"><i class="fas fa-sync fa-spin"></i> Обработка запроса ИИ...</div>
-<div id="errorBox"></div>
+<div id="status-bar">КАНАЛ СВЯЗИ АКТИВЕН. ОБРАБОТКА ДАННЫХ<span class="loading-dots"></span></div>
+<div id="debug"></div>
 
-<div class="footer">
-    <div class="tags">
-        <div class="tag" onclick="q('Миранда')">⚖️ Миранда</div>
-        <div class="tag" onclick="q('Наркотики 13.1 УК')">💊 Наркотики</div>
-        <div class="tag" onclick="q('Задержание 17.6 УК')">🛑 Неподчинение</div>
-        <div class="tag" onclick="q('Этапы задержания')">🚔 Процесс</div>
+<div class="controls">
+    <div class="quick-actions">
+        <div class="action-tag" onclick="fast('Зачитай Миранду')">⚖️ Миранда</div>
+        <div class="action-tag" onclick="fast('Статья 13.2 УК')">💊 Наркотики</div>
+        <div class="action-tag" onclick="fast('Статья 17.1 УК')">👊 Нападение</div>
+        <div class="action-tag" onclick="fast('Процессуальный кодекс глава 7')">🚔 Задержание</div>
     </div>
-    <div class="input-wrap">
-        <button class="btn" id="mic"><i class="fas fa-microphone"></i></button>
-        <input type="text" id="userInput" placeholder="Введите текст..." autocomplete="off">
-        <button class="btn" onclick="send()"><i class="fas fa-paper-plane"></i></button>
+    <div class="input-group">
+        <div class="icon-btn" id="mic"><i class="fas fa-microphone"></i></div>
+        <input type="text" id="userInput" placeholder="Введите код или запрос..." autocomplete="off">
+        <div class="icon-btn" onclick="send()"><i class="fas fa-paper-plane"></i></div>
     </div>
 </div>
 
 <script>
+    // Твой ключ
     const KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec';
-    // ИСПОЛЬЗУЕМ СТАБИЛЬНУЮ V1 И ПОЛНЫЙ ПУТЬ К МОДЕЛИ
-    const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+    // Используем v1beta — это самый стабильный путь для Flash 1.5
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
 
     const chat = document.getElementById('chat');
     const input = document.getElementById('userInput');
-    const typing = document.getElementById('typing');
-    const err = document.getElementById('errorBox');
+    const statusBar = document.getElementById('status-bar');
+    const debug = document.getElementById('debug');
 
     async function send() {
-        const val = input.value.trim();
-        if(!val) return;
+        const text = input.value.trim();
+        if (!text) return;
 
-        addMsg(val, 'user');
+        addMsg(text, 'user');
         input.value = '';
-        typing.style.display = 'block';
-        err.style.display = 'none';
+        statusBar.style.display = 'block';
+        debug.style.display = 'none';
         chat.scrollTop = chat.scrollHeight;
 
         try {
-            const response = await fetch(URL, {
+            const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Ты - ассистент офицера LSPD на Majestic Phoenix. Отвечай кратко, используй УК и ПК. Запрос: ${val}` }] }]
+                    contents: [{ parts: [{ text: `Инструкция: Ты - ассистент LSPD на Majestic RP. Отвечай кратко. Используй УК и ПК. Запрос: ${text}` }] }]
                 })
             });
 
             const data = await response.json();
-            typing.style.display = 'none';
+            statusBar.style.display = 'none';
 
             if (data.candidates && data.candidates[0].content) {
-                addMsg(data.candidates[0].content.parts[0].text, 'bot');
+                let reply = data.candidates[0].content.parts[0].text;
+                addMsg(reply, 'bot');
             } else {
-                err.innerText = "ОШИБКА API: " + (data.error ? data.error.message : "Неизвестный сбой");
-                err.style.display = 'block';
+                throw new Error(JSON.stringify(data));
             }
         } catch (e) {
-            typing.style.display = 'none';
-            err.innerText = "СЕТЕВАЯ ОШИБКА: " + e.message;
-            err.style.display = 'block';
+            statusBar.style.display = 'none';
+            debug.innerText = "КРИТИЧЕСКИЙ СБОЙ: " + e.message;
+            debug.style.display = 'block';
+            addMsg("Сбой протокола. Смотри лог ошибки.", 'bot');
         }
     }
 
@@ -112,14 +125,30 @@
         chat.scrollTop = chat.scrollHeight;
     }
 
-    function q(v) { input.value = v; send(); }
+    function fast(v) { input.value = v; send(); }
     input.onkeypress = (e) => e.key === 'Enter' && send();
 
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SR) {
-        const r = new SR(); r.lang = 'ru-RU';
-        document.getElementById('mic').onclick = () => { r.start(); };
-        r.onresult = (e) => { input.value = e.results[0][0].transcript; send(); };
+    // Таймер
+    let timeLeft = 300;
+    let timerId = null;
+    function startTimer() {
+        if (timerId) { clearInterval(timerId); timerId = null; timeLeft = 300; document.getElementById('t-display').innerText = "05:00"; return; }
+        timerId = setInterval(() => {
+            timeLeft--;
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            document.getElementById('t-display').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            if (timeLeft <= 0) { clearInterval(timerId); alert("Время адвоката вышло!"); }
+        }, 1000);
+    }
+
+    // Голос
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (Recognition) {
+        const rec = new Recognition(); rec.lang = 'ru-RU';
+        document.getElementById('mic').onclick = () => { rec.start(); document.getElementById('mic').style.color = 'red'; };
+        rec.onresult = (e) => { input.value = e.results[0][0].transcript; send(); };
+        rec.onend = () => { document.getElementById('mic').style.color = 'var(--blue)'; };
     }
 </script>
 </body>
