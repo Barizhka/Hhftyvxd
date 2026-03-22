@@ -3,152 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BE PHOENIX LSPD | Terminal</title>
+    <title>Phoenix Legal Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --blue: #00a2ff; --bg: #05070a; --glass: rgba(255, 255, 255, 0.03); --border: rgba(0, 162, 255, 0.2); }
+        :root { --blue: #2563eb; --blue-dark: #1d4ed8; --bg: #f8fafc; --text: #0f172a; --border: #e2e8f0; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #e0e0e0; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Header */
-        header { padding: 15px 20px; background: rgba(0,0,0,0.5); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
-        .logo { font-weight: 900; color: var(--blue); letter-spacing: 2px; font-size: 16px; text-shadow: 0 0 10px var(--blue); }
-        .timer { font-family: monospace; color: #ff4b2b; font-size: 14px; border: 1px solid #ff4b2b; padding: 2px 8px; border-radius: 4px; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Чат */
-        #chat { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: radial-gradient(circle at center, #0a1122 0%, #05070a 100%); }
-        .msg { max-width: 88%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; position: relative; border: 1px solid transparent; animation: slide 0.3s ease; }
-        @keyframes slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .user { align-self: flex-end; background: linear-gradient(135deg, #0062ff, #00a2ff); color: white; border-bottom-right-radius: 2px; }
-        .bot { align-self: flex-start; background: var(--glass); border-color: var(--border); border-bottom-left-radius: 2px; }
+        /* Sidebar */
+        .sidebar { width: 280px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: 0.3s; z-index: 1000; }
+        .sidebar-header { padding: 24px; font-weight: 800; font-size: 20px; color: var(--blue); border-bottom: 1px solid var(--border); letter-spacing: -0.5px; }
+        .nav { flex: 1; overflow-y: auto; padding: 15px; }
+        .nav-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin: 20px 0 10px 10px; letter-spacing: 1px; }
+        .nav-item { padding: 12px 15px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; color: #475569; transition: 0.2s; margin-bottom: 4px; }
+        .nav-item:hover { background: #f1f5f9; color: var(--blue); }
+        .nav-item.active { background: #eff6ff; color: var(--blue); }
 
-        /* Индикатор подготовки */
-        #status-bar { display: none; padding: 8px 20px; font-size: 11px; color: var(--blue); background: rgba(0,0,0,0.3); }
-        .loading-dots::after { content: ''; animation: dots 1.5s infinite; }
-        @keyframes dots { 0% {content:'.'} 33% {content:'..'} 66% {content:'...'} }
+        /* Main */
+        .main { flex: 1; display: flex; flex-direction: column; background: #fff; position: relative; }
+        header { height: 70px; padding: 0 25px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fff; }
+        .mobile-menu-btn { display: none; font-size: 20px; cursor: pointer; color: var(--blue); }
 
-        /* Нижняя панель */
-        .controls { padding: 15px; background: #0a0d14; border-top: 1px solid var(--border); }
-        .quick-actions { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: none; }
-        .action-tag { background: #1c2128; border: 1px solid #30363d; padding: 6px 14px; border-radius: 20px; font-size: 11px; white-space: nowrap; transition: 0.2s; }
-        .action-tag:active { background: var(--blue); color: #000; }
+        /* Timer */
+        .timer-pill { background: #fef2f2; border: 1px solid #fee2e2; color: #ef4444; padding: 8px 16px; border-radius: 30px; font-weight: 700; font-family: 'Courier New', monospace; cursor: pointer; font-size: 15px; transition: 0.2s; }
+        .timer-pill:hover { background: #fee2e2; }
+        .timer-pill.active { background: #ef4444; color: #fff; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
 
-        .input-group { display: flex; background: #000; border: 1px solid var(--border); border-radius: 15px; padding: 5px; align-items: center; box-shadow: 0 0 15px rgba(0, 162, 255, 0.1); }
-        input { flex: 1; background: none; border: none; color: white; padding: 10px; outline: none; font-size: 16px; }
-        .icon-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--blue); cursor: pointer; font-size: 18px; transition: 0.2s; }
-        .icon-btn:active { transform: scale(0.9); opacity: 0.7; }
+        /* Chat Area */
+        #chat { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
+        .message { max-width: 85%; line-height: 1.6; font-size: 15px; animation: fadeIn 0.3s ease; }
+        .user-msg { align-self: flex-end; background: #f1f5f9; padding: 12px 20px; border-radius: 18px 18px 2px 18px; color: #1e293b; border: 1px solid #e2e8f0; }
+        .bot-msg { align-self: flex-start; background: #fff; color: #334155; }
+        .bot-msg b { color: var(--blue); }
+        
+        /* Input Area */
+        .input-container { padding: 25px; background: #fff; border-top: 1px solid var(--border); }
+        .input-box { max-width: 900px; margin: 0 auto; display: flex; background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 6px 12px; transition: 0.3s; align-items: center; }
+        .input-box:focus-within { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); background: #fff; }
+        input { flex: 1; background: none; border: none; padding: 12px; outline: none; font-size: 16px; color: var(--text); }
+        .send-btn { background: var(--blue); color: #fff; border: none; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .send-btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
 
-        /* Ошибки */
-        #debug { position: absolute; bottom: 85px; left: 10px; right: 10px; background: #ff4b2b; color: white; font-size: 10px; padding: 10px; border-radius: 8px; display: none; z-index: 100; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        /* Loader */
+        #loader { display: none; padding-left: 30px; margin-bottom: 20px; font-size: 13px; color: #94a3b8; font-weight: 500; }
+
+        /* Mobile */
+        @media (max-width: 850px) {
+            .sidebar { position: absolute; left: -280px; height: 100%; }
+            .sidebar.open { left: 0; box-shadow: 20px 0 50px rgba(0,0,0,0.1); }
+            .mobile-menu-btn { display: block; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo"><i class="fas fa-tower-broadcast"></i> PHOENIX LSPD</div>
-    <div id="t-display" class="timer" onclick="startTimer()">05:00</div>
-</header>
-
-<div id="chat">
-    <div class="msg bot">Терминал v5.0 запущен. База данных Majestic Phoenix синхронизирована. <br><br><i>Нажмите на таймер, чтобы запустить отсчет 5 минут.</i></div>
-</div>
-
-<div id="status-bar">КАНАЛ СВЯЗИ АКТИВЕН. ОБРАБОТКА ДАННЫХ<span class="loading-dots"></span></div>
-<div id="debug"></div>
-
-<div class="controls">
-    <div class="quick-actions">
-        <div class="action-tag" onclick="fast('Зачитай Миранду')">⚖️ Миранда</div>
-        <div class="action-tag" onclick="fast('Статья 13.2 УК')">💊 Наркотики</div>
-        <div class="action-tag" onclick="fast('Статья 17.1 УК')">👊 Нападение</div>
-        <div class="action-tag" onclick="fast('Процессуальный кодекс глава 7')">🚔 Задержание</div>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">PHOENIX LAW</div>
+    <div class="nav">
+        <div class="nav-label">БЫСТРЫЙ ПОИСК</div>
+        <div class="nav-item active" onclick="ask('Расскажи основные статьи Уголовного Кодекса')"><i class="fas fa-gavel"></i> Уголовный кодекс</div>
+        <div class="nav-item" onclick="ask('Порядок задержания Процессуальный кодекс')"><i class="fas fa-handcuffs"></i> Процессуальный кодекс</div>
+        <div class="nav-item" onclick="ask('Статьи Административного кодекса')"><i class="fas fa-file-invoice-dollar"></i> Админ. кодекс</div>
+        <div class="nav-label">ИНСТРУМЕНТЫ</div>
+        <div class="nav-item" onclick="ask('Зачитай правило Миранды')"><i class="fas fa-bullhorn"></i> Миранда</div>
+        <div class="nav-item" onclick="ask('Как проводить вторичный обыск?')"><i class="fas fa-magnifying-glass"></i> Обыск</div>
+        <div class="nav-item" onclick="window.location.reload()"><i class="fas fa-rotate"></i> Сбросить сессию</div>
     </div>
-    <div class="input-group">
-        <div class="icon-btn" id="mic"><i class="fas fa-microphone"></i></div>
-        <input type="text" id="userInput" placeholder="Введите код или запрос..." autocomplete="off">
-        <div class="icon-btn" onclick="send()"><i class="fas fa-paper-plane"></i></div>
+</aside>
+
+<main class="main">
+    <header>
+        <div class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+        <div style="font-weight: 700; color: #64748b; font-size: 14px;">LSPD ASSISTANT</div>
+        <div id="timer" class="timer-pill" onclick="handleTimer()">05:00</div>
+    </header>
+
+    <div id="chat">
+        <div class="message bot-msg">
+            <b>Система авторизована.</b> Добро пожаловать в юридический портал Phoenix. <br>
+            Я помогу быстро найти статью УК, ПК или зачитать Миранду. Какой у вас запрос?
+        </div>
     </div>
-</div>
+
+    <div id="loader"><i class="fas fa-spinner fa-spin"></i> Обращение к законодательной базе...</div>
+
+    <footer class="input-container">
+        <div class="input-box">
+            <input type="text" id="userInput" placeholder="Введите статью или вопрос..." autocomplete="off">
+            <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </footer>
+</main>
 
 <script>
-    // Твой ключ
-    const KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec';
-    // Используем v1beta — это самый стабильный путь для Flash 1.5
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+    const API_KEY = 'AIzaSyBSeOzHcdG9WKNxOqCK5wcShECKlli1Aec';
+    // Обновленный URL для работы с v1beta напрямую
+    const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     const chat = document.getElementById('chat');
     const input = document.getElementById('userInput');
-    const statusBar = document.getElementById('status-bar');
-    const debug = document.getElementById('debug');
+    const loader = document.getElementById('loader');
 
-    async function send() {
+    async function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
 
-        addMsg(text, 'user');
+        appendMessage(text, 'user-msg');
         input.value = '';
-        statusBar.style.display = 'block';
-        debug.style.display = 'none';
+        loader.style.display = 'block';
         chat.scrollTop = chat.scrollHeight;
 
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(ENDPOINT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Инструкция: Ты - ассистент LSPD на Majestic RP. Отвечай кратко. Используй УК и ПК. Запрос: ${text}` }] }]
+                    contents: [{ parts: [{ text: `Ты - юридический ассистент LSPD на Majestic RP Phoenix. Твоя задача - давать краткие и точные справки по УК, ПК и законам штата. Отвечай структурировано. Запрос: ${text}` }] }]
                 })
             });
 
             const data = await response.json();
-            statusBar.style.display = 'none';
+            loader.style.display = 'none';
 
             if (data.candidates && data.candidates[0].content) {
-                let reply = data.candidates[0].content.parts[0].text;
-                addMsg(reply, 'bot');
+                const reply = data.candidates[0].content.parts[0].text;
+                appendMessage(reply, 'bot-msg');
             } else {
-                throw new Error(JSON.stringify(data));
+                console.error(data);
+                appendMessage("<b>Ошибка:</b> Не удалось получить ответ. Проверьте API-ключ или лимиты запросов.", 'bot-msg');
             }
         } catch (e) {
-            statusBar.style.display = 'none';
-            debug.innerText = "КРИТИЧЕСКИЙ СБОЙ: " + e.message;
-            debug.style.display = 'block';
-            addMsg("Сбой протокола. Смотри лог ошибки.", 'bot');
+            loader.style.display = 'none';
+            appendMessage("<b>Сбой связи:</b> Проверьте интернет-соединение.", 'bot-msg');
         }
     }
 
-    function addMsg(t, s) {
-        const d = document.createElement('div');
-        d.className = `msg ${s}`;
-        d.innerHTML = t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-        chat.appendChild(d);
+    function appendMessage(text, className) {
+        const div = document.createElement('div');
+        div.className = `message ${className}`;
+        // Форматирование жирного текста и переносов
+        div.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
     }
 
-    function fast(v) { input.value = v; send(); }
-    input.onkeypress = (e) => e.key === 'Enter' && send();
-
-    // Таймер
-    let timeLeft = 300;
-    let timerId = null;
-    function startTimer() {
-        if (timerId) { clearInterval(timerId); timerId = null; timeLeft = 300; document.getElementById('t-display').innerText = "05:00"; return; }
-        timerId = setInterval(() => {
-            timeLeft--;
-            let m = Math.floor(timeLeft / 60);
-            let s = timeLeft % 60;
-            document.getElementById('t-display').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-            if (timeLeft <= 0) { clearInterval(timerId); alert("Время адвоката вышло!"); }
-        }, 1000);
+    function ask(val) {
+        input.value = val;
+        sendMessage();
+        if (window.innerWidth < 850) toggleSidebar();
     }
 
-    // Голос
-    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (Recognition) {
-        const rec = new Recognition(); rec.lang = 'ru-RU';
-        document.getElementById('mic').onclick = () => { rec.start(); document.getElementById('mic').style.color = 'red'; };
-        rec.onresult = (e) => { input.value = e.results[0][0].transcript; send(); };
-        rec.onend = () => { document.getElementById('mic').style.color = 'var(--blue)'; };
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
+
+    // Логика Таймера
+    let seconds = 300;
+    let timerInterval = null;
+    function handleTimer() {
+        const timerEl = document.getElementById('timer');
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            seconds = 300;
+            timerEl.innerText = "05:00";
+            timerEl.classList.remove('active');
+        } else {
+            timerEl.classList.add('active');
+            timerInterval = setInterval(() => {
+                seconds--;
+                let m = Math.floor(seconds / 60);
+                let s = seconds % 60;
+                timerEl.innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("ВРЕМЯ ВЫШЛО!");
+                }
+            }, 1000);
+        }
     }
 </script>
 </body>
